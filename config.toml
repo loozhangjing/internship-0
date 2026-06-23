@@ -4,6 +4,6 @@ output_folder_path = "output/"
 api_endpoint = "https://api.webinarjam.com/webinarjam/webinars"
 output_filename = "webinars.json"
 
-[get_registrants_for_one_webinar]
+[get_registrants_for_selected_webinars]
 api_endpoint = "https://api.webinarjam.com/webinarjam/registrants"
 output_filename = "registrants.json"
