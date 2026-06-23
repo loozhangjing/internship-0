@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
 import json
-import datetime
 import time
 
 from dotenv import load_dotenv
@@ -47,7 +46,7 @@ for webinar in webinars:
         response = requests.post(endpoint, request_data)
 
         response_json = response.json()
-        registrants[webinar_id] = response_json
+        registrants[webinar_id] = response_json["registrants"]["data"]
 
         # prevent exceeding the WebinarJam API's limit of 20 API calls per second
         time.sleep(0.1)
