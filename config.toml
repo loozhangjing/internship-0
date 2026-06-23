@@ -1,3 +1,9 @@
+output_folder_path = "output/"
+
+[output_filenames]
+get_all_webinars = "webinars.json"
+get_registrants_for_one_webinar = "registrants.json"
+
 [api_endpoints]
 get_all_webinars = "https://api.webinarjam.com/webinarjam/webinars"
 get_registrants_for_one_webinar = "https://api.webinarjam.com/webinarjam/registrants"
