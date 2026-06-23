@@ -15,9 +15,10 @@ with open("config.toml", "rb") as file:
     config = tomllib.load(file)
 
 output_directory_path = Path(config["output_folder_path"])
-output_file_path = output_directory_path / config["output_filenames"]["get_all_webinars"]
+output_filename = config["get_all_webinars"]["output_filename"]
+output_file_path = output_directory_path / output_filename
 
-endpoint = config["api_endpoints"]["get_all_webinars"]
+endpoint = config["get_all_webinars"]["api_endpoint"]
 request_data = {
     "api_key": API_KEY
 }
