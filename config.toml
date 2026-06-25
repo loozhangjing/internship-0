@@ -5,6 +5,8 @@ api_endpoint = "https://api.webinarjam.com/webinarjam/webinars"
 output_filename = "webinars.json"
 
 [get_registrants_for_selected_webinars]
+include_year = "2026"
+exclude_year = "2025"
 api_endpoint = "https://api.webinarjam.com/webinarjam/registrants"
 output_filename = "registrants.json"
 
