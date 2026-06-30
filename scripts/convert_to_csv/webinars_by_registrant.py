@@ -1,5 +1,6 @@
 from pathlib import Path
 import json
+import re
 
 import tomllib
 import pandas as pd
@@ -39,17 +40,49 @@ for email, webinars in registrants_df["webinars"].items():
 
         registrants_df.loc[email, webinar_name] = "registered"
 
-# remove the "webinars" column
+# remove the "webinars" column because all its JSON data has already been added as new columns
+# remove the "phone_country_code" column because it seems like all phone numbers are local
 registrants_df.drop(
-    columns = ["webinars"],
+    columns = ["webinars", "phone_country_code"],
     inplace = True
 )
+
+
+for email, phone_number in registrants_df["phone_number"].items():
+    # make phone numbers numeric-only (remove extraneous characters like '-')
+    # \D in a regular expression means any digit
+    phone_number_digits_only = re.sub(r"\D", "", str(phone_number))
+
+    # convert them to integers (to remove any trailing/leading zeroes)
+    phone_number_int = int(phone_number_digits_only)
+
+    formatted_phone_number = str(phone_number_int)
+
+    # a phone number beginning with "60" will not have been truncated by turning it into an int
+    if formatted_phone_number[:2] == "60" and len(formatted_phone_number) > 11:
+        formatted_phone_number = formatted_phone_number[2:]
+
+    formatted_phone_number = "0" + formatted_phone_number
+
+    if formatted_phone_number[1] == "1":
+        # if a phone number is 10 digits long, format it as 01x xxx xxxx
+        # if it's 11 digits long: 01x xxxx xxxx
+        second_section_length = 3
+        if len(formatted_phone_number) == 11:
+            second_section_length = 4
+
+        formatted_phone_number = formatted_phone_number[:3] + " " + formatted_phone_number[3:second_section_length + 3] + " " + formatted_phone_number[second_section_length + 3:]
+    else:
+        # for phone numbers that don't begin with "01" (e.g. 03 xxxxxxx)
+        formatted_phone_number = formatted_phone_number[:2] + " " + formatted_phone_number[2:]
+
+    registrants_df.loc[email, "phone_number"] = formatted_phone_number
+
 
 registrants_df.rename(
     columns = {
         "first_name": "First name",
         "last_name": "Last name",
-        "phone_country_code": "Phone country code",
         "phone_number": "Phone number",
         "total_registered": "Total registered webinars",
         "total_attended": "Total attended webinars",
