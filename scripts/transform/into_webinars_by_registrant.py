@@ -29,13 +29,8 @@ for webinar_id, webinar_registrants in registrants_by_webinar.items():
                 "last_name": registrant["last_name"],
                 "phone_country_code": registrant["phone_country_code"],
                 "phone_number": registrant["phone_number"],
-                "total_registered": 0,
-                "total_attended": 0,
                 "webinars": {}
             }
-
-        # ever registrant that exists under a webinar has *registered* for that webinar but might not have *attended* its live session (maybe they watched a replay)
-        webinars_by_registrant[email]["total_registered"] += 1
 
         webinars_by_registrant[email]["webinars"][webinar_id] = {
             "registered": True,
@@ -43,7 +38,6 @@ for webinar_id, webinar_registrants in registrants_by_webinar.items():
         }
 
         if registrant["attended_live"] == "Yes":
-            webinars_by_registrant[email]["total_attended"] += 1
             webinars_by_registrant[email]["webinars"][webinar_id]["attended"] = True
 
 OUTPUT_FILE_PATH = OUTPUT_DIRECTORY_PATH / config["transform_into_webinars_by_registrant"]["output_filename"]

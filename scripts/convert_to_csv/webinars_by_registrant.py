@@ -22,6 +22,9 @@ with open(WEBINAR_LIST_FILE_PATH) as file:
 with open(WEBINARS_BY_REGISTRANT_FILE_PATH) as file:
     registrants_df = pd.read_json(file, orient="index")
 
+registrants_df["total_registered"] = 0
+registrants_df["total_attended"] = 0
+
 # iterate over lists of webinars each registrant has registered for
 for email, webinars in registrants_df["webinars"].items():
     # iterate over each webinar the current registrant has registered for
@@ -34,11 +37,15 @@ for email, webinars in registrants_df["webinars"].items():
         # .strip() removes leading and trailing whitespace
         webinar_name = webinar_info["name"].strip()
 
-        if stats["attended"] is True:
+        if stats["attended"] is True and stats["registered"] is True:
+            registrants_df.loc[email, "total_attended"] += 1
+            registrants_df.loc[email, "total_registered"] += 1
             registrants_df.loc[email, webinar_name] = "✔"
-            continue
-
-        registrants_df.loc[email, webinar_name] = "O"
+        elif stats["registered"] is True:
+            registrants_df.loc[email, "total_registered"] += 1
+            registrants_df.loc[email, webinar_name] = "O"
+        else:
+            print(f"Odd data: registrant {email} did not attend or register for webinar {webinar_id}, yet there is an entry for the webinar under the registrant.")
 
 # remove the "webinars" column because all its JSON data has already been added as new columns
 # remove the "phone_country_code" column because it seems like all phone numbers are local
