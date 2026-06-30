@@ -35,10 +35,10 @@ for email, webinars in registrants_df["webinars"].items():
         webinar_name = webinar_info["name"].strip()
 
         if stats["attended"] is True:
-            registrants_df.loc[email, webinar_name] = "ATTENDED"
+            registrants_df.loc[email, webinar_name] = "✔"
             continue
 
-        registrants_df.loc[email, webinar_name] = "registered"
+        registrants_df.loc[email, webinar_name] = "O"
 
 # remove the "webinars" column because all its JSON data has already been added as new columns
 # remove the "phone_country_code" column because it seems like all phone numbers are local
@@ -83,6 +83,12 @@ for email, phone_number in registrants_df["phone_number"].items():
 
     registrants_df.loc[email, "phone_number"] = formatted_phone_number
 
+
+registrants_df.sort_values(
+    by = "total_attended",
+    ascending = False,
+    inplace = True
+)
 
 registrants_df.rename(
     columns = {
