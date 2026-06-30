@@ -47,6 +47,11 @@ registrants_df.drop(
     inplace = True
 )
 
+def capitalize_each_word(string):
+    return string.title()
+
+registrants_df["first_name"] = registrants_df["first_name"].map(capitalize_each_word)
+registrants_df["last_name"] = registrants_df["last_name"].map(capitalize_each_word)
 
 for email, phone_number in registrants_df["phone_number"].items():
     # make phone numbers numeric-only (remove extraneous characters like '-')
