@@ -22,6 +22,9 @@ strptime_format = "%A, %d %b %Y, %I:%M %p"
 api_endpoint = "https://api.webinarjam.com/webinarjam/registrants"
 output_filename = "registrants.json"
 
+[transform_into_webinars_per_registrant]
+output_filename = "webinars_per_registrant.json"
+
 [convert_registrant_data_to_csv]
 output_folder = "registrants_csv"
 first_line = '"First name","Last name","Phone country code","Phone number",Email,IP,Webinar,Session,Event,"Registration date","Attended live","Attended live date","Time to enter live room","Time in live room","Purchased from live room","Revenue from live room","Watched replay","Watched replay date","Time in replay room","Purchased from replay room","Revenue from replay room",Subscribed,"GDPR status","GDPR communications","GDPR date","GDPR IP","Twilio consent date","Twilio marketing consent date","UTM source","UTM medium","UTM campaign","UTM term","UTM content","Total Signups",Country,State/Province'
