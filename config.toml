@@ -60,7 +60,7 @@ json_keys = [
 ]
 
 [convert_webinars_by_registrant_to_csv]
-output_subfolder = "webinars_by_registrant_csv"
+output_filename = "webinars_by_registrant.csv"
 
 [plots]
 output_subfolder = "plots"
