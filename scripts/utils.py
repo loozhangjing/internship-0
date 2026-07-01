@@ -1,0 +1,20 @@
+import os
+import sys
+import pathlib
+import logging
+
+logging.basicConfig(level=logging.INFO)
+
+def confirm_if_overwriting_file(output_file_path: pathlib.Path):
+    if os.path.isfile(output_file_path) is True:
+        print()
+        overwrite = input(f"{output_file_path} already exists, overwrite? ")
+        print()
+
+        overwrite = overwrite.lower().strip()
+
+        if overwrite != "y" and overwrite != "yes":
+            logging.info(f"{output_file_path} remains unchanged")
+            sys.exit()
+
+        logging.info(f"overwriting {output_file_path}")

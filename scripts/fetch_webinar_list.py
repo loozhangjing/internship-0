@@ -1,5 +1,4 @@
 import os
-import sys
 import pathlib
 import json
 import logging
@@ -9,6 +8,7 @@ import requests
 
 from config.GlobalConfig import GlobalConfig
 from config.WebinarListConfig import WebinarListConfig
+from utils import confirm_if_overwriting_file
 
 logging.basicConfig(level=logging.INFO)
 
@@ -34,18 +34,7 @@ OUTPUT_DIRECTORY_PATH = pathlib.Path(GlobalConfig.OUTPUT_DIRECTORY)
 OUTPUT_DIRECTORY_PATH.mkdir(parents=True, exist_ok=True)
 OUTPUT_FILE_PATH = OUTPUT_DIRECTORY_PATH / WebinarListConfig.OUTPUT_FILENAME
 
-if os.path.isfile(OUTPUT_FILE_PATH) is True:
-    print()
-    overwrite = input(f"{OUTPUT_FILE_PATH} already exists. overwrite? ")
-    print()
-
-    overwrite = overwrite.lower().strip()
-
-    if overwrite != "y" and overwrite != "yes":
-        logging.info(f"{OUTPUT_FILE_PATH} remains unchanged")
-        sys.exit()
-
-    logging.info(f"overwriting {OUTPUT_FILE_PATH}")
+confirm_if_overwriting_file(OUTPUT_FILE_PATH)
 
 with open(OUTPUT_FILE_PATH, "w") as file:
     formatted_response = json.dumps(webinars, indent=4)
