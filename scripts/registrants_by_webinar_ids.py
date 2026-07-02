@@ -21,6 +21,9 @@ def registrants_by_webinar_ids(webinar_ids: List[int]):
 
             registrants_of_current_webinar = json.load(file)
 
+        for registrant in registrants_of_current_webinar:
+            registrant["webinar_id"] = id
+
         # concatenate the previous registrants and the current registrants
         registrants_by_webinar.extend(registrants_of_current_webinar)
 
