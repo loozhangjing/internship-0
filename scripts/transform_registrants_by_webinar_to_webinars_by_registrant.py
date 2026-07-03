@@ -12,7 +12,7 @@ registrants_for_selected_webinars = registrants_by_webinar_ids([1228, 1229])
 registrants_by_webinar = pd.DataFrame(registrants_for_selected_webinars)
 
 # select only relevant columns so the other columns are dropped (removed)
-registrants_by_webinar = registrants_by_webinar[WebinarsByRegistrantConfig.RELEVANT_COLUMNS]
+registrants_by_webinar = registrants_by_webinar[WebinarsByRegistrantConfig.RELEVANT_COLUMNS_BEFORE_GROUPING]
 
 unique_emails = registrants_by_webinar.email.unique()
 webinar_ids = registrants_by_webinar.webinar_id.unique()
@@ -34,5 +34,21 @@ registrants_by_webinar = registrants_by_webinar.apply(add_a_column_for_every_uni
 # for every column's value, take the first value that's not NaN
 registrants_by_webinar = registrants_by_webinar.groupby("email").first()
 
+# remove irrelevant columns
+webinars_by_registrant = registrants_by_webinar.drop(
+    labels = WebinarsByRegistrantConfig.COLUMNS_TO_DROP_AFTER_GROUPING,
+    axis = "columns"
+)
+
+# move the columns representing webinars to the end
+webinar_column_labels = [e for e in webinars_by_registrant.columns.tolist() if e not in WebinarsByRegistrantConfig.COLUMNS_THAT_COME_FIRST]
+webinars_by_registrant = pd.concat(
+    [
+        webinars_by_registrant.loc[:, WebinarsByRegistrantConfig.COLUMNS_THAT_COME_FIRST],
+        webinars_by_registrant.loc[:, webinar_column_labels]
+    ],
+    axis = "columns"
+)
+
 with pd.option_context({ "display.max_rows": None, "display.max_columns": None, "display.width": None }):
-    print(registrants_by_webinar)
+    print(webinars_by_registrant)
