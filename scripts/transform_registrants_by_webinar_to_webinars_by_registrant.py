@@ -7,7 +7,7 @@ from config.WebinarsByRegistrant import WebinarsByRegistrantConfig
 
 logging.basicConfig(level=logging.INFO)
 
-registrants_for_selected_webinars = registrants_by_webinar_ids([1228, 1229])
+registrants_for_selected_webinars = registrants_by_webinar_ids(WebinarsByRegistrantConfig.WEBINAR_IDS)
 
 registrants_by_webinar = pd.DataFrame(registrants_for_selected_webinars)
 
@@ -48,6 +48,21 @@ webinars_by_registrant = pd.concat(
         webinars_by_registrant.loc[:, webinar_column_labels]
     ],
     axis = "columns"
+)
+
+# format the values of every cell
+webinars_by_registrant = webinars_by_registrant.apply(
+    WebinarsByRegistrantConfig.format_row,
+    axis = "columns"
+)
+
+# make all emails (which are the row labels) lowercase
+webinars_by_registrant.rename(str.lower, inplace = True)
+
+webinars_by_registrant.rename(
+    WebinarsByRegistrantConfig.COLUMN_LABEL_RENAME_MAPPINGS,
+    axis = "columns",
+    inplace = True
 )
 
 with pd.option_context({ "display.max_rows": None, "display.max_columns": None, "display.width": None }):
