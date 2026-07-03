@@ -33,7 +33,9 @@ class WebinarsByRegistrantConfig:
     COLUMN_LABEL_RENAME_MAPPINGS = {
         "first_name": "First name",
         "last_name": "Last name",
-        "phone_number": "Phone number"
+        "phone_number": "Phone number",
+        "total_attended": "Total webinars attended",
+        "total_registered": "Total webinars registered & attended",
     }
 
     webinar_ids_to_names = webinar_ids_to_names

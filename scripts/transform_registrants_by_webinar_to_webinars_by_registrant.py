@@ -39,6 +39,14 @@ webinars_by_registrant = registrants_by_webinar.drop(
     axis = "columns"
 )
 
+def add_columns_for_total_webinars_joined(row):
+    row["total_attended"] = sum(1 for value in row[WebinarsByRegistrantConfig.WEBINAR_IDS] if value == "attended")
+    row["total_registered"] = sum(1 for value in row[WebinarsByRegistrantConfig.WEBINAR_IDS] if value == "registered" or value == "attended")
+
+    return row
+
+webinars_by_registrant = webinars_by_registrant.apply(add_columns_for_total_webinars_joined, axis="columns")
+
 # move the columns representing webinars to the end
 columns_that_come_first = [label for label in webinars_by_registrant.columns.tolist() if label not in WebinarsByRegistrantConfig.WEBINAR_IDS] # non-webinar-ID column labels
 webinars_by_registrant = pd.concat(
