@@ -3,6 +3,7 @@ import logging
 import pandas as pd
 
 from registrants_by_webinar_ids import registrants_by_webinar_ids
+from config.GlobalConfig import GlobalConfig
 from config.WebinarsByRegistrant import WebinarsByRegistrantConfig
 
 logging.basicConfig(level=logging.INFO)
@@ -14,10 +15,8 @@ registrants_by_webinar = pd.DataFrame(registrants_for_selected_webinars)
 # select only relevant columns so the other columns are dropped (removed)
 registrants_by_webinar = registrants_by_webinar[WebinarsByRegistrantConfig.RELEVANT_COLUMNS_BEFORE_GROUPING]
 
-unique_emails = registrants_by_webinar.email.unique()
-webinar_ids = registrants_by_webinar.webinar_id.unique()
-
-logging.info(f"there are {len(unique_emails)} unique registrants (identified by their emails) across {len(webinar_ids)} webinars")
+logging.info("")
+logging.info(f"there are {len(registrants_by_webinar.email.unique())} unique registrants (identified by their emails) across {len(WebinarsByRegistrantConfig.WEBINAR_IDS)} webinars")
 
 def add_a_column_for_every_unique_webinar(row):
     new_column_name = str(row.webinar_id)
@@ -41,11 +40,11 @@ webinars_by_registrant = registrants_by_webinar.drop(
 )
 
 # move the columns representing webinars to the end
-webinar_column_labels = [e for e in webinars_by_registrant.columns.tolist() if e not in WebinarsByRegistrantConfig.COLUMNS_THAT_COME_FIRST]
+columns_that_come_first = [label for label in webinars_by_registrant.columns.tolist() if label not in WebinarsByRegistrantConfig.WEBINAR_IDS] # non-webinar-ID column labels
 webinars_by_registrant = pd.concat(
     [
-        webinars_by_registrant.loc[:, WebinarsByRegistrantConfig.COLUMNS_THAT_COME_FIRST],
-        webinars_by_registrant.loc[:, webinar_column_labels]
+        webinars_by_registrant.loc[:, columns_that_come_first],
+        webinars_by_registrant.loc[:, WebinarsByRegistrantConfig.WEBINAR_IDS]
     ],
     axis = "columns"
 )
@@ -72,5 +71,9 @@ webinars_by_registrant.rename(
     inplace = True
 )
 
-with pd.option_context({ "display.max_rows": None, "display.max_columns": None, "display.width": None }):
-    print(webinars_by_registrant)
+OUTPUT_FILE_PATH = GlobalConfig.OUTPUT_DIRECTORY_PATH / WebinarsByRegistrantConfig.OUTPUT_FILENAME
+with open(OUTPUT_FILE_PATH, "w") as file:
+    csv = webinars_by_registrant.to_csv()
+    file.write(csv)
+
+    logging.info(f"wrote {len(csv)} characters to {OUTPUT_FILE_PATH}")

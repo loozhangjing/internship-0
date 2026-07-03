@@ -10,12 +10,14 @@ with open(GlobalConfig.OUTPUT_DIRECTORY_PATH / WebinarListConfig.OUTPUT_FILENAME
     webinar_ids_to_names =  {str(webinar["webinar_id"]): webinar["name"] for webinar in webinar_list}
 
 class WebinarsByRegistrantConfig:
+    OUTPUT_FILENAME = "webinars_by_registrant.csv"
+
     # in order
     WEBINAR_IDS = [
-        1201, 1204,
-        1202, 1203,
-        1181, 1189,
-        1176, 1177,
+        "1201", "1204",
+        "1202", "1203",
+        "1181", "1189",
+        "1176", "1177",
     ]
 
     # should be passed to the `.apply()` method of a `DataFrame`
@@ -50,13 +52,6 @@ class WebinarsByRegistrantConfig:
     COLUMNS_TO_DROP_AFTER_GROUPING = [
         "webinar_id",
         "attended_live"
-    ]
-
-    # labels of the columns to rearrange in front of the columns representing webinars
-    COLUMNS_THAT_COME_FIRST = [
-        "first_name",
-        "last_name",
-        "phone_number"
     ]
 
 def format_phone_number(phone_number):

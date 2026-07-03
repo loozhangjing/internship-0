@@ -7,7 +7,7 @@ from config.RegistrantsByWebinarConfig import RegistrantsByWebinarConfig
 
 logging.basicConfig(level=logging.INFO)
 
-def registrants_by_webinar_ids(webinar_ids: List[int]):
+def registrants_by_webinar_ids(webinar_ids: List[str]):
     registrants_by_webinar = []
 
     for id in webinar_ids:
