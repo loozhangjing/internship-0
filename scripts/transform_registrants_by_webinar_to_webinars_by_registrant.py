@@ -65,5 +65,12 @@ webinars_by_registrant.rename(
     inplace = True
 )
 
+# rename column labels of numeric webinar IDs into the corresponding webinar names
+webinars_by_registrant.rename(
+    WebinarsByRegistrantConfig.webinar_ids_to_names,
+    axis = "columns",
+    inplace = True
+)
+
 with pd.option_context({ "display.max_rows": None, "display.max_columns": None, "display.width": None }):
     print(webinars_by_registrant)

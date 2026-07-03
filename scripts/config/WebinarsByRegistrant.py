@@ -1,4 +1,13 @@
 import re
+import json
+
+from config.GlobalConfig import GlobalConfig
+from config.WebinarListConfig import WebinarListConfig
+
+with open(GlobalConfig.OUTPUT_DIRECTORY_PATH / WebinarListConfig.OUTPUT_FILENAME) as file:
+    webinar_list = json.load(file)
+
+    webinar_ids_to_names =  {str(webinar["webinar_id"]): webinar["name"] for webinar in webinar_list}
 
 class WebinarsByRegistrantConfig:
     # in order
@@ -24,6 +33,8 @@ class WebinarsByRegistrantConfig:
         "last_name": "Last name",
         "phone_number": "Phone number"
     }
+
+    webinar_ids_to_names = webinar_ids_to_names
 
     # labels of the columns to keep (all other columns will be deleted) for the data loaded from the `.json` files, i.e. the registrants by webinar
     RELEVANT_COLUMNS_BEFORE_GROUPING = [
