@@ -1,0 +1,5 @@
+# PEP 8 conventions
+line-length = 79
+
+[lint]
+extend-select = ["E501"]
