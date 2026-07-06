@@ -7,6 +7,8 @@ class AggregateRevenueConfig:
     CSV_INPUT_FILENAME = "revenue_by_registration.csv"
     CSV_COLUMN_NAMES = CSVColumnNames
 
+    OUTPUT_FILENAME = "aggregated_revenue.csv"
+
     ONLY_DIGITS_REGULAR_EXPRESSION = "^[0-9]*$"
 
     @staticmethod
