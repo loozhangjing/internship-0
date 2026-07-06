@@ -6,7 +6,7 @@ from typing import List
 from config.GlobalConfig import GlobalConfig
 from config.WebinarListConfig import WebinarListConfig
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 def webinar_ids_by_query(
         included_years: List[int],
@@ -33,7 +33,7 @@ def webinar_ids_by_query(
                 WebinarListConfig.STRPTIME_FORMAT
             )
         except ValueError:
-            logging.error(
+            logging.debug(
                 f"date '{date_str}' for the webinar '{name}' "
                 f"could not be parsed, skipping webinar '{name}'"
             )
