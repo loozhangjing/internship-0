@@ -35,6 +35,11 @@ new_registrants_dict = {}
 encountered_emails = []
 
 for (_webinar_id, webinar_df) in grouped:
+    registrant_count_with_duplicates = webinar_df.shape[0]
+
+    # remove duplicate emails
+    webinar_df = webinar_df.drop_duplicates(subset="email")
+
     webinar_name = webinar_df.loc[:, "webinar"].iloc[0].strip()
 
     webinar_datetime = datetime.strptime(
@@ -56,8 +61,13 @@ for (_webinar_id, webinar_df) in grouped:
             new_emails.append(email)
 
     logger.debug(
+        "\n"
         f"there are {webinar_df.shape[0]} registrants "
-        f"for webinar '{webinar_name}', "
+        f"(with {registrant_count_with_duplicates - webinar_df.shape[0]} "
+        "duplicates having been removed)"
+        "\n"
+        f"for webinar '{webinar_name}',"
+        "\n"
         f"with {len(new_emails)} of them being new"
     )
 
