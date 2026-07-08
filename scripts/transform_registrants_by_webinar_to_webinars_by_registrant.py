@@ -2,13 +2,13 @@ import logging
 
 import pandas as pd
 
-from registrants_by_webinar_ids import registrants_by_webinar_ids
+from functions.get_registrants_by_webinar_ids import get_registrants_by_webinar_ids
 from config.GlobalConfig import GlobalConfig
 from config.WebinarsByRegistrant import WebinarsByRegistrantConfig
 
 logging.basicConfig(level=logging.INFO)
 
-registrants_for_selected_webinars = registrants_by_webinar_ids(
+registrants_for_selected_webinars = get_registrants_by_webinar_ids(
     WebinarsByRegistrantConfig.WEBINAR_IDS
 )
 

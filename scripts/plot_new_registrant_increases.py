@@ -12,7 +12,7 @@ from config.PlotNewRegistrantIncreasesConfig\
     import PlotNewRegistrantIncreasesConfig
 
 from functions.webinar_ids_by_query import webinar_ids_by_query
-from registrants_by_webinar_ids import registrants_by_webinar_ids
+from functions.get_registrants_by_webinar_ids import get_registrants_by_webinar_ids
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -22,7 +22,7 @@ desired_webinar_ids = webinar_ids_by_query(
     PlotNewRegistrantIncreasesConfig.WEBINAR_NAMES_MUST_INCLUDE_ONE_OF
 )
 
-registrants = registrants_by_webinar_ids(desired_webinar_ids)
+registrants = get_registrants_by_webinar_ids(desired_webinar_ids)
 
 df = pd.DataFrame(registrants)
 
