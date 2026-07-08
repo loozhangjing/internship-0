@@ -21,6 +21,12 @@ with open(WEBINAR_LIST_PATH) as file:
 class WebinarsByRegistrantConfig:
     OUTPUT_FILENAME = "webinars_by_registrant.csv"
 
+    # characters used in each cell in the output CSV file to represent
+    # the status of a registrant for a particular webinar
+    PAID_CHARACTER = "$"
+    ATTENDED_FREE_CHARACTER = "✔"
+    REGISTERED_FREE_CHARACTER = "O"
+
     # should be passed to the `.apply()` method of a `pandas.DataFrame`
     @staticmethod
     def format_row(row):
@@ -35,8 +41,9 @@ class WebinarsByRegistrantConfig:
         "first_name": "First name",
         "last_name": "Last name",
         "phone_number": "Phone number",
-        "total_attended": "Total webinars attended",
-        "total_registered": "Total webinars registered & attended",
+        "total_paid": "Total PAID webinars registered/attended",
+        "total_free_attended": "Total FREE webinars attended",
+        "total_free_registered": "Total FREE webinars registered/attended",
     }
 
     webinar_ids_to_names = webinar_ids_to_names

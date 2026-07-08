@@ -2,17 +2,16 @@ import logging
 
 import pandas as pd
 
-from functions.get_registrants_by_webinar_ids import get_registrants_by_webinar_ids
+from functions.get_registrants_by_webinar_ids\
+    import get_registrants_by_webinar_ids
 from config.GlobalConfig import GlobalConfig
 from config.WebinarListConfig import WebinarListConfig
-from config.WebinarsByRegistrant import WebinarsByRegistrantConfig
+from config.WebinarsByRegistrantConfig import WebinarsByRegistrantConfig
 
 logging.basicConfig(level=logging.INFO)
 
 webinar_ids = []
 for (key, value) in WebinarListConfig.FREE_TO_PAID_WEBINAR_IDS.items():
-    # both `key` and `value` are tuples containing one or more webinar IDs
-    print(key)
     webinar_ids.extend(list(key))
     webinar_ids.extend(list(value))
 
@@ -36,12 +35,14 @@ logging.info(
 )
 
 def add_a_column_for_every_unique_webinar(row):
-    new_column_name = str(row.webinar_id)
-
-    if row.attended_live == "Yes":
-        row[new_column_name] = "attended"
+    if WebinarListConfig.is_paid_webinar_id(int(row.webinar_id)) is True:
+        value = WebinarsByRegistrantConfig.PAID_CHARACTER
+    elif row.attended_live == "Yes":
+        value = WebinarsByRegistrantConfig.ATTENDED_FREE_CHARACTER
     else:
-        row[new_column_name] = "registered"
+        value = WebinarsByRegistrantConfig.REGISTERED_FREE_CHARACTER
+
+    row[str(row.webinar_id)] = value
     return row
 
 registrants_by_webinar = registrants_by_webinar.apply(
@@ -60,13 +61,18 @@ webinars_by_registrant = registrants_by_webinar.drop(
 )
 
 def add_columns_for_total_webinars_joined(row):
-    row["total_attended"] = sum(
+    row["total_paid"] = sum(
         1 for value in row[webinar_ids]
-        if value == "attended"
+        if value == WebinarsByRegistrantConfig.PAID_CHARACTER
     )
-    row["total_registered"] = sum(
+    row["total_free_attended"] = sum(
         1 for value in row[webinar_ids]
-        if value == "registered" or value == "attended"
+        if value == WebinarsByRegistrantConfig.ATTENDED_FREE_CHARACTER
+    )
+    row["total_free_registered"] = sum(
+        1 for value in row[webinar_ids]
+        if value == WebinarsByRegistrantConfig.REGISTERED_FREE_CHARACTER
+        or value == WebinarsByRegistrantConfig.ATTENDED_FREE_CHARACTER
     )
 
     return row
