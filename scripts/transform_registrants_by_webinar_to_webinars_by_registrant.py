@@ -4,13 +4,22 @@ import pandas as pd
 
 from functions.get_registrants_by_webinar_ids import get_registrants_by_webinar_ids
 from config.GlobalConfig import GlobalConfig
+from config.WebinarListConfig import WebinarListConfig
 from config.WebinarsByRegistrant import WebinarsByRegistrantConfig
 
 logging.basicConfig(level=logging.INFO)
 
-registrants_for_selected_webinars = get_registrants_by_webinar_ids(
-    WebinarsByRegistrantConfig.WEBINAR_IDS
-)
+webinar_ids = []
+for (key, value) in WebinarListConfig.FREE_TO_PAID_WEBINAR_IDS.items():
+    # both `key` and `value` are tuples containing one or more webinar IDs
+    print(key)
+    webinar_ids.extend(list(key))
+    webinar_ids.extend(list(value))
+
+# convert integer IDs into strings
+webinar_ids = [str(id) for id in webinar_ids]
+
+registrants_for_selected_webinars = get_registrants_by_webinar_ids(webinar_ids)
 
 registrants_by_webinar = pd.DataFrame(registrants_for_selected_webinars)
 
@@ -22,7 +31,7 @@ registrants_by_webinar = registrants_by_webinar[
 logging.info(
     f"there are {len(registrants_by_webinar.email.unique())} "
     f"unique registrants (as identified by their emails) "
-    f"across {len(WebinarsByRegistrantConfig.WEBINAR_IDS)} webinars"
+    f"across {len(webinar_ids)} webinars"
     "\n"
 )
 
@@ -52,11 +61,11 @@ webinars_by_registrant = registrants_by_webinar.drop(
 
 def add_columns_for_total_webinars_joined(row):
     row["total_attended"] = sum(
-        1 for value in row[WebinarsByRegistrantConfig.WEBINAR_IDS]
+        1 for value in row[webinar_ids]
         if value == "attended"
     )
     row["total_registered"] = sum(
-        1 for value in row[WebinarsByRegistrantConfig.WEBINAR_IDS]
+        1 for value in row[webinar_ids]
         if value == "registered" or value == "attended"
     )
 
@@ -70,12 +79,12 @@ webinars_by_registrant = webinars_by_registrant.apply(
 # move the columns representing webinars to the end
 columns_that_come_first = [
     label for label in webinars_by_registrant.columns.tolist()
-    if label not in WebinarsByRegistrantConfig.WEBINAR_IDS
+    if label not in webinar_ids
 ] # non-webinar-ID column labels
 webinars_by_registrant = pd.concat(
     [
         webinars_by_registrant.loc[:, columns_that_come_first],
-        webinars_by_registrant.loc[:, WebinarsByRegistrantConfig.WEBINAR_IDS]
+        webinars_by_registrant.loc[:, webinar_ids]
     ],
     axis = "columns"
 )

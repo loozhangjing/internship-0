@@ -21,14 +21,6 @@ with open(WEBINAR_LIST_PATH) as file:
 class WebinarsByRegistrantConfig:
     OUTPUT_FILENAME = "webinars_by_registrant.csv"
 
-    # in order
-    WEBINAR_IDS = [
-        "1201", "1204",
-        "1202", "1203",
-        "1181", "1189",
-        "1176", "1177",
-    ]
-
     # should be passed to the `.apply()` method of a `pandas.DataFrame`
     @staticmethod
     def format_row(row):
