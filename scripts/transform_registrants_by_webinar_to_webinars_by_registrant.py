@@ -52,10 +52,16 @@ registrants_by_webinar = registrants_by_webinar.apply(
 
 # combines all rows with the same email
 # for every column's value, take the first value that's not NaN
-registrants_by_webinar = registrants_by_webinar.groupby("email").first()
+webinars_by_registrant = registrants_by_webinar.groupby("email").first()
+
+# format the values of every cell of the relevant columns
+webinars_by_registrant = webinars_by_registrant.apply(
+    WebinarsByRegistrantConfig.format_row,
+    axis = "columns"
+)
 
 # remove irrelevant columns
-webinars_by_registrant = registrants_by_webinar.drop(
+webinars_by_registrant = webinars_by_registrant.drop(
     labels = WebinarsByRegistrantConfig.COLUMNS_TO_DROP_AFTER_GROUPING,
     axis = "columns"
 )
@@ -82,6 +88,15 @@ webinars_by_registrant = webinars_by_registrant.apply(
     axis="columns"
 )
 
+# make all emails (which are the row labels) lowercase
+webinars_by_registrant.rename(str.lower, inplace = True)
+
+webinars_by_registrant.rename(
+    WebinarsByRegistrantConfig.COLUMN_LABEL_RENAME_MAPPINGS,
+    axis = "columns",
+    inplace = True
+)
+
 # move the columns representing webinars to the end
 columns_that_come_first = [
     label for label in webinars_by_registrant.columns.tolist()
@@ -95,21 +110,6 @@ webinars_by_registrant = pd.concat(
     axis = "columns"
 )
 
-# format the values of every cell
-webinars_by_registrant = webinars_by_registrant.apply(
-    WebinarsByRegistrantConfig.format_row,
-    axis = "columns"
-)
-
-# make all emails (which are the row labels) lowercase
-webinars_by_registrant.rename(str.lower, inplace = True)
-
-webinars_by_registrant.rename(
-    WebinarsByRegistrantConfig.COLUMN_LABEL_RENAME_MAPPINGS,
-    axis = "columns",
-    inplace = True
-)
-
 # rename the column labels that are numeric webinar IDs
 # into their corresponding webinar names
 webinars_by_registrant.rename(
@@ -117,6 +117,8 @@ webinars_by_registrant.rename(
     axis = "columns",
     inplace = True
 )
+
+GlobalConfig.pretty_print_df(webinars_by_registrant)
 
 OUTPUT_FILE_PATH = (
     GlobalConfig.OUTPUT_DIRECTORY_PATH

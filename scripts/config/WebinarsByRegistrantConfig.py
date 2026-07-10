@@ -33,14 +33,18 @@ class WebinarsByRegistrantConfig:
         row.first_name = row.first_name.title()
         row.last_name = row.last_name.title()
 
-        row.phone_number = format_phone_number(row.phone_number)
+        # this is a new column
+        row["phone_number_formatted"] = format_phone_number(row.phone_number)
+
+        row.phone_number = f"{row.phone_country_code} {row.phone_number}"
 
         return row
 
     COLUMN_LABEL_RENAME_MAPPINGS = {
         "first_name": "First name",
         "last_name": "Last name",
-        "phone_number": "Phone number",
+        "phone_number": "Phone number (as entered)",
+        "phone_number_formatted": "Phone number (automatically formatted)",
         "total_paid": "Total PAID webinars registered/attended",
         "total_free_attended": "Total FREE webinars attended",
         "total_free_registered": "Total FREE webinars registered/attended",
@@ -54,6 +58,7 @@ class WebinarsByRegistrantConfig:
         "email",
         "first_name",
         "last_name",
+        "phone_country_code",
         "phone_number",
         "webinar_id",
         "attended_live"
@@ -63,6 +68,7 @@ class WebinarsByRegistrantConfig:
     # been combined, i.e. the 'registrants by webinar' data has been
     # converted to a 'webinars by registrant' format
     COLUMNS_TO_DROP_AFTER_GROUPING = [
+        "phone_country_code",
         "webinar_id",
         "attended_live"
     ]
