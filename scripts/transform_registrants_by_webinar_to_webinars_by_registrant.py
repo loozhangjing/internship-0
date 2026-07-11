@@ -127,10 +127,14 @@ revenue_by_registration = pd.read_csv(REVENUE_BY_REGISTRATION_FILE_PATH)
 def add_revenue(row):
     email = row[AggregateRevenueConfig.CSV_COLUMN_NAMES.EMAIL]
     if type(email) is not str:
-        logging.error(f"email '{email}' is not a string")
+        logging.debug(f"skipping email '{email}': it's not a string")
         return row
 
     email = email.lower()
+
+    # not every email in the revenue CSV data is in the registrant list
+    if email not in webinars_by_registrant.index:
+        return row
 
     # remember that this is the name in Learnabee, not in WebinarJam
     learnabee_webinar_name = row[
@@ -147,10 +151,17 @@ def add_revenue(row):
         webinar_ids = get_paid_webinar_ids_from_learnabee_name(
             learnabee_webinar_name
         )
-        # to be continued
+
+        for webinar_id in webinar_ids:
+            webinar_id = str(webinar_id)
+
+            webinars_by_registrant.loc[email, webinar_id] = (
+                "RM "
+                f"{row[AggregateRevenueConfig.CSV_COLUMN_NAMES.REVENUE]}"
+            )
     except StopIteration:
-        logging.error(
-            "could not find corresponding paid webinar ID(s) for "
+        logging.debug(
+            "no corresponding paid webinar ID(s) found for "
             f"'{learnabee_webinar_name}'"
         )
 
