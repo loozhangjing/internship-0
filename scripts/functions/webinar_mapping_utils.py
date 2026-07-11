@@ -16,17 +16,23 @@ WEBINAR_MAPPINGS = [
 ```
 """
 
+def get_free_to_paid_webinar_id_mappings():
+    return {
+        tup[1]: tup[2]
+            for tup in WEBINAR_MAPPINGS
+    }
+
 def get_free_webinar_ids_from_learnabee_name(learnabee_webinar_name):
     return next(
-        list(tuple[1])
-            for tuple in WEBINAR_MAPPINGS
-            if tuple[0] == learnabee_webinar_name
+        list(tup[1])
+            for tup in WEBINAR_MAPPINGS
+            if tup[0] == learnabee_webinar_name
     )
 
 def get_paid_webinar_ids_from_learnabee_name(learnabee_webinar_name):
     return next(
-        list(tuple[2])
-            for tuple in WEBINAR_MAPPINGS
-            if tuple[0] == learnabee_webinar_name
+        list(tup[2])
+            for tup in WEBINAR_MAPPINGS
+            if tup[0] == learnabee_webinar_name
     )
 
