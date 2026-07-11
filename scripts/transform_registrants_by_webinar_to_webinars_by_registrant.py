@@ -13,9 +13,12 @@ from config.AggregateRevenueConfig import AggregateRevenueConfig
 logging.basicConfig(level=logging.INFO)
 
 webinar_ids = []
+paid_webinar_groups = []
 for (key, value) in WebinarListConfig.FREE_TO_PAID_WEBINAR_IDS.items():
     webinar_ids.extend(list(key))
     webinar_ids.extend(list(value))
+
+    paid_webinar_groups.append(value)
 
 # convert integer IDs into strings
 webinar_ids = [str(id) for id in webinar_ids]
@@ -69,10 +72,16 @@ webinars_by_registrant = webinars_by_registrant.drop(
 )
 
 def add_columns_for_total_webinars_joined(row):
-    row["total_paid"] = sum(
-        1 for value in row[webinar_ids]
-        if value == WebinarsByRegistrantConfig.PAID_CHARACTER
-    )
+    row["total_paid"] = 0
+    for paid_webinar_ids in paid_webinar_groups:
+        for paid_webinar_id in paid_webinar_ids:
+            paid_webinar_id = str(paid_webinar_id)
+
+            if row[paid_webinar_id] == WebinarsByRegistrantConfig.PAID_CHARACTER:
+                row["total_paid"] += 1
+                # only count the first paid webinar in a paid webinar group
+                break
+
     row["total_free_attended"] = sum(
         1 for value in row[webinar_ids]
         if value == WebinarsByRegistrantConfig.ATTENDED_FREE_CHARACTER

@@ -23,7 +23,7 @@ class WebinarsByRegistrantConfig:
 
     # characters used in each cell in the output CSV file to represent
     # the status of a registrant for a particular webinar
-    PAID_CHARACTER = "$"
+    PAID_CHARACTER = "RM ?"
     ATTENDED_FREE_CHARACTER = "✔"
     REGISTERED_FREE_CHARACTER = "O"
 
