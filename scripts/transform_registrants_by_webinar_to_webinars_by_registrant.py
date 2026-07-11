@@ -4,9 +4,11 @@ import pandas as pd
 
 from functions.get_registrants_by_webinar_ids\
     import get_registrants_by_webinar_ids
+from functions.webinar_mapping_utils import get_paid_webinar_ids_from_learnabee_name
 from config.GlobalConfig import GlobalConfig
 from config.WebinarListConfig import WebinarListConfig
 from config.WebinarsByRegistrantConfig import WebinarsByRegistrantConfig
+from config.AggregateRevenueConfig import AggregateRevenueConfig
 
 logging.basicConfig(level=logging.INFO)
 
@@ -110,6 +112,56 @@ webinars_by_registrant = pd.concat(
     axis = "columns"
 )
 
+
+REVENUE_BY_REGISTRATION_FILE_PATH = (
+    GlobalConfig.OUTPUT_DIRECTORY_PATH
+    / AggregateRevenueConfig.CSV_INPUT_FILENAME
+)
+
+logging.info(
+    f"attempting to load CSV data from {REVENUE_BY_REGISTRATION_FILE_PATH}..."
+)
+
+revenue_by_registration = pd.read_csv(REVENUE_BY_REGISTRATION_FILE_PATH)
+
+def add_revenue(row):
+    email = row[AggregateRevenueConfig.CSV_COLUMN_NAMES.EMAIL]
+    if type(email) is not str:
+        logging.error(f"email '{email}' is not a string")
+        return row
+
+    email = email.lower()
+
+    # remember that this is the name in Learnabee, not in WebinarJam
+    learnabee_webinar_name = row[
+        AggregateRevenueConfig.CSV_COLUMN_NAMES.WEBINAR_NAME
+    ]
+
+    learnabee_webinar_name = str(learnabee_webinar_name)
+
+    # remove all zero-width spaces because some webinar names contain it
+    # for some reason
+    learnabee_webinar_name = learnabee_webinar_name.replace("\u200b", "")
+
+    try:
+        webinar_ids = get_paid_webinar_ids_from_learnabee_name(
+            learnabee_webinar_name
+        )
+        # to be continued
+    except StopIteration:
+        logging.error(
+            "could not find corresponding paid webinar ID(s) for "
+            f"'{learnabee_webinar_name}'"
+        )
+
+    return row
+
+revenue_by_registration.apply(
+    add_revenue,
+    axis="columns"
+)
+
+
 # rename the column labels that are numeric webinar IDs
 # into their corresponding webinar names
 webinars_by_registrant.rename(
@@ -117,8 +169,6 @@ webinars_by_registrant.rename(
     axis = "columns",
     inplace = True
 )
-
-GlobalConfig.pretty_print_df(webinars_by_registrant)
 
 OUTPUT_FILE_PATH = (
     GlobalConfig.OUTPUT_DIRECTORY_PATH

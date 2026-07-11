@@ -26,13 +26,13 @@ def get_free_webinar_ids_from_learnabee_name(learnabee_webinar_name):
     return next(
         list(tup[1])
             for tup in WEBINAR_MAPPINGS
-            if tup[0] == learnabee_webinar_name
+            if tup[0] in learnabee_webinar_name
     )
 
 def get_paid_webinar_ids_from_learnabee_name(learnabee_webinar_name):
     return next(
         list(tup[2])
             for tup in WEBINAR_MAPPINGS
-            if tup[0] == learnabee_webinar_name
+            if tup[0] in learnabee_webinar_name
     )
 

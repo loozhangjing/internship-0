@@ -1,5 +1,5 @@
 class CSVColumnNames:
-    EMAIL = "Email Address"
+    EMAIL = "Email Address.1"
     WEBINAR_NAME = "Course Name"
     REVENUE = "Amount Paid (RM)"
 
