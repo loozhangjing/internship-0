@@ -10,7 +10,7 @@ from config.WebinarListConfig import WebinarListConfig
 from config.WebinarsByRegistrantConfig import WebinarsByRegistrantConfig
 from config.AggregateRevenueConfig import AggregateRevenueConfig
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 webinar_ids = []
 paid_webinar_groups = []
@@ -140,9 +140,13 @@ def add_revenue(row):
         return row
 
     email = email.lower()
+    email = email.strip()
 
     # not every email in the revenue CSV data is in the registrant list
     if email not in webinars_by_registrant.index:
+        logging.debug(
+            f"skipping email '{email}': it's not in the data from WebinarJam"
+        )
         return row
 
     # remember that this is the name in Learnabee, not in WebinarJam
