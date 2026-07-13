@@ -10,6 +10,7 @@ class GlobalConfig:
         """if using this function, pipe the output of the script to less -S"""
         with pd.option_context(
             {
+                "display.max_colwidth": None,
                 "display.max_rows": None,
                 "display.max_columns": None,
                 "display.width": None,

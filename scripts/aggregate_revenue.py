@@ -52,16 +52,11 @@ df = df.apply(AggregateRevenueConfig.row_revenue_to_int, axis="columns")
 
 df = (
     df.groupby(COLUMN_NAMES.WEBINAR_NAME)[COLUMN_NAMES.REVENUE]
-        .aggregate(["sum", "size", "mean", "median", "min", "max", "std"])
+        .aggregate(["sum", "size"])
         .rename(
             columns = {
                 "sum": "Total revenue (RM)",
                 "size": "Number of registratations",
-                "mean": "Mean (average) revenue per registration (RM)",
-                "median": "Median revenue per registration (RM)",
-                "min": "Minimum amount paid (RM)",
-                "max": "Maximum amount paid (RM)",
-                "std": "Standard deviation of the amount paid (RM)",
             }
         )
 )
@@ -78,15 +73,4 @@ with open(OUTPUT_PATH, "w") as file:
     logging.info(f"wrote {len(csv)} characters to {OUTPUT_PATH}")
 
 
-"""
-with pd.option_context(
-    {
-        "display.max_rows": None,
-        "display.max_columns": None,
-        "display.width": None,
-    }
-):
-    # pipe the output of this script to less -S for a pretty-printed
-    # `DataFrame` without any rows containing non-integer revenue values
-    print(df)
-"""
+GlobalConfig.pretty_print_df(df)
