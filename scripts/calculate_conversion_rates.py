@@ -3,8 +3,8 @@ import logging
 import pandas as pd
 
 from config.GlobalConfig import GlobalConfig
+from config.CalculateConversionRatesConfig import CSVColumnNames, CalculateConversionRatesConfig
 from config.WebinarListConfig import WebinarListConfig
-
 from config.WebinarsByRegistrantConfig import WebinarsByRegistrantConfig
 
 from functions.get_registrants_by_webinar_ids\
@@ -16,6 +16,8 @@ logging.basicConfig(level = logging.INFO)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
+
+COLUMN_NAMES = CalculateConversionRatesConfig.CSV_COLUMN_NAMES
 
 
 free_webinar_ids = WebinarListConfig.get_free_webinar_ids()
@@ -67,14 +69,27 @@ for free_webinar_id in free_webinar_ids:
     free_registrant_count = free_registrants_df.shape[0]
     paid_registrant_count = paid_registrants_df.shape[0]
 
-    df.loc[free_webinar_id, "Conversion rate (%)"] = paid_registrant_count / free_registrant_count * 100
-    df.loc[free_webinar_id, "Number of unique free registrants"] = free_registrant_count
-    df.loc[free_webinar_id, "Number of unique paid registrants"] = paid_registrant_count
-    df.loc[free_webinar_id, "Paid webinar name(s)"] = "\n".join(paid_webinar_names)
+    df.loc[free_webinar_id, CSVColumnNames.CONVERSION_RATE]\
+        = paid_registrant_count / free_registrant_count * 100
+
+    df.loc[free_webinar_id, CSVColumnNames.FREE_REGISTRANT_COUNT]\
+        = free_registrant_count
+    df.loc[free_webinar_id, CSVColumnNames.PAID_REGISTRANT_COUNT]\
+        = paid_registrant_count
+    df.loc[free_webinar_id, CSVColumnNames.PAID_WEBINAR_NAMES]\
+        = "\n".join(paid_webinar_names)
 
 # convert row indices (which are free webinar IDs) into strings)
 df = df.rename(lambda id: str(id), axis="rows")
 
 df = df.rename(WebinarsByRegistrantConfig.webinar_ids_to_names, axis="rows")
 
-GlobalConfig.pretty_print_df(df)
+OUTPUT_FILE_PATH = (
+    GlobalConfig.OUTPUT_DIRECTORY_PATH
+    / CalculateConversionRatesConfig.OUTPUT_FILENAME
+)
+with open(OUTPUT_FILE_PATH, "w") as file:
+    csv = df.to_csv()
+    file.write(csv)
+
+    logging.info(f"wrote {len(csv)} characters to {OUTPUT_FILE_PATH}")
