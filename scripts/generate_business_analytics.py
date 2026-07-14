@@ -1,45 +1,37 @@
 import logging
 
-from config.GlobalConfig import GlobalConfig
-from config.AggregateRevenueConfig import AggregateRevenueConfig
-from config.WebinarsByRegistrantConfig import WebinarsByRegistrantConfig
+import pandas as pd
 
-from functions.get_aggregated_revenue import get_aggregated_revenue
+from config.GlobalConfig import GlobalConfig
+from config.WebinarListConfig import WebinarListConfig
+
+from functions.get_registrants_by_webinar_ids\
+    import get_registrants_by_webinar_ids
 from functions.webinar_mapping_utils\
-    import learnabee_webinar_name_exists,\
-    get_paid_webinar_ids_from_learnabee_name,\
-    get_free_webinar_ids_from_learnabee_name
+    import get_paid_webinar_ids_from_free_id
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-df = get_aggregated_revenue()
+free_webinar_ids = WebinarListConfig.get_free_webinar_ids()
 
-mask = df.index.map(learnabee_webinar_name_exists)
+df = pd.DataFrame(index=free_webinar_ids)
 
-df = df[mask]
+for free_webinar_id in free_webinar_ids:
+    registrants = get_registrants_by_webinar_ids([free_webinar_id])
+
+    df.loc[free_webinar_id, "free_registrant_count"] = len(registrants)
+
+    paid_webinar_ids = get_paid_webinar_ids_from_free_id(free_webinar_id)
+
+    if paid_webinar_ids is None:
+        raise Exception(
+            f"no paid webinar IDs found for free webinar ID {free_webinar_id}"
+        )
+
+    paid_webinar_ids = [str(id) for id in paid_webinar_ids]
+
+    df.loc[free_webinar_id, "paid_webinar_id"] = " & ".join(paid_webinar_ids)
 
 GlobalConfig.pretty_print_df(df)
-
-def add_webinarjam_webinar_names(row):
-    learnabee_course_name = row.name
-
-    webinarjam_free_webinar_names = [
-        WebinarsByRegistrantConfig.webinar_ids_to_names[str(id)]
-            for id in get_free_webinar_ids_from_learnabee_name(
-                learnabee_course_name
-            )
-    ]
-    webinarjam_paid_webinar_names = [
-        WebinarsByRegistrantConfig.webinar_ids_to_names[str(id)]
-            for id in get_paid_webinar_ids_from_learnabee_name(
-                learnabee_course_name
-            )
-    ]
-
-    return row
-
-df = df.apply(add_webinarjam_webinar_names, axis = "columns")
-
-# GlobalConfig.pretty_print_df(df)

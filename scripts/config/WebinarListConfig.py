@@ -15,6 +15,14 @@ class WebinarListConfig:
     _PAID_WEBINAR_IDS = sum(FREE_TO_PAID_WEBINAR_IDS.values(), ())
 
     @staticmethod
+    def get_free_webinar_ids():
+        return WebinarListConfig._FREE_WEBINAR_IDS
+
+    @staticmethod
+    def get_paid_webinar_ids():
+        return WebinarListConfig._PAID_WEBINAR_IDS
+
+    @staticmethod
     def is_free_webinar_id(id):
         return(id in WebinarListConfig._FREE_WEBINAR_IDS)
 

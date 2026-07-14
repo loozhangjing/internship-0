@@ -26,6 +26,12 @@ def get_free_to_paid_webinar_id_mappings():
             for tup in WEBINAR_MAPPINGS
     }
 
+def get_paid_webinar_ids_from_free_id(free_webinar_id):
+    for tup in WEBINAR_MAPPINGS:
+        for free_id in tup[1]:
+            if free_id == free_webinar_id:
+                return tup[2]
+
 def learnabee_webinar_name_exists(learnabee_webinar_name):
     for tup in WEBINAR_MAPPINGS:
         match = tup[0] in learnabee_webinar_name
