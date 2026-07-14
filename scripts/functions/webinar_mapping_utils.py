@@ -1,4 +1,8 @@
+import logging
 from config.env import WEBINAR_MAPPINGS
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 """
 `WEBINAR_MAPPINGS` is a list of tuples of three elements, where each element
@@ -22,11 +26,29 @@ def get_free_to_paid_webinar_id_mappings():
             for tup in WEBINAR_MAPPINGS
     }
 
+def learnabee_webinar_name_exists(learnabee_webinar_name):
+    for tup in WEBINAR_MAPPINGS:
+        match = tup[0] in learnabee_webinar_name
+
+        logger.debug(f"'{tup[0]}' in '{learnabee_webinar_name}': {match}")
+
+        if match is True:
+            return True
+        else:
+            match = learnabee_webinar_name in tup[0]
+            logger.debug(f"'{learnabee_webinar_name}' in '{tup[0]}': {match}")
+
+            if match is True:
+                return True
+
+    return False
+
 def get_free_webinar_ids_from_learnabee_name(learnabee_webinar_name):
     return next(
         list(tup[1])
             for tup in WEBINAR_MAPPINGS
             if tup[0] in learnabee_webinar_name
+            or learnabee_webinar_name in tup[0]
     )
 
 def get_paid_webinar_ids_from_learnabee_name(learnabee_webinar_name):
@@ -34,5 +56,6 @@ def get_paid_webinar_ids_from_learnabee_name(learnabee_webinar_name):
         list(tup[2])
             for tup in WEBINAR_MAPPINGS
             if tup[0] in learnabee_webinar_name
+            or learnabee_webinar_name in tup[0]
     )
 
