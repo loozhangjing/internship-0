@@ -3,7 +3,8 @@ import logging
 import pandas as pd
 
 from config.GlobalConfig import GlobalConfig
-from config.CalculateConversionRatesConfig import CSVColumnNames, CalculateConversionRatesConfig
+from config.CalculateConversionRatesConfig\
+    import CSVColumnNames, CalculateConversionRatesConfig
 from config.WebinarListConfig import WebinarListConfig
 from config.WebinarsByRegistrantConfig import WebinarsByRegistrantConfig
 
@@ -25,12 +26,19 @@ free_webinar_ids = WebinarListConfig.get_free_webinar_ids()
 df = pd.DataFrame(index=free_webinar_ids)
 
 for free_webinar_id in free_webinar_ids:
-    free_registrants_df = pd.DataFrame(
+    total_free_registrants_df = pd.DataFrame(
         get_registrants_by_webinar_ids([free_webinar_id])
     )
 
+    attended_free_registrants_df = total_free_registrants_df[
+        total_free_registrants_df.attended_live == "Yes"
+    ]
+
     # remove duplicate free registrants
-    free_registrants_df = free_registrants_df.groupby("email").first()
+    total_free_registrants_df = total_free_registrants_df.groupby("email").first()
+    attended_free_registrants_df = (
+        attended_free_registrants_df.groupby("email").first()
+    )
 
 
     paid_webinar_ids = get_paid_webinar_ids_from_free_id(free_webinar_id)
@@ -64,16 +72,32 @@ for free_webinar_id in free_webinar_ids:
     )
 
     paid_webinar_ids = [str(id) for id in paid_webinar_ids]
-    paid_webinar_names = [WebinarsByRegistrantConfig.webinar_ids_to_names[id] for id in paid_webinar_ids]
+    paid_webinar_names = [
+        WebinarsByRegistrantConfig.webinar_ids_to_names[id]
+        for id in paid_webinar_ids
+    ]
 
-    free_registrant_count = free_registrants_df.shape[0]
+    total_free_registrant_count = total_free_registrants_df.shape[0]
+    attended_free_registrant_count = attended_free_registrants_df.shape[0]
     paid_registrant_count = paid_registrants_df.shape[0]
 
-    df.loc[free_webinar_id, CSVColumnNames.CONVERSION_RATE]\
-        = paid_registrant_count / free_registrant_count * 100
+    if attended_free_registrant_count == 0:
+        attended_paid_conversion_rate = 0
+    else:
+        attended_paid_conversion_rate = (
+            paid_registrant_count / attended_free_registrant_count * 100
+        )
 
-    df.loc[free_webinar_id, CSVColumnNames.FREE_REGISTRANT_COUNT]\
-        = free_registrant_count
+    df.loc[free_webinar_id, CSVColumnNames.ATTENDED_PAID_CONVERSION_RATE]\
+        = attended_paid_conversion_rate
+    df.loc[free_webinar_id, CSVColumnNames.TOTAL_PAID_CONVERSION_RATE]\
+        = paid_registrant_count / total_free_registrant_count * 100
+
+    df.loc[free_webinar_id, CSVColumnNames.ATTENDED_FREE_REGISTRANT_COUNT]\
+        = attended_free_registrant_count
+    df.loc[free_webinar_id, CSVColumnNames.TOTAL_FREE_REGISTRANT_COUNT]\
+        = total_free_registrant_count
+
     df.loc[free_webinar_id, CSVColumnNames.PAID_REGISTRANT_COUNT]\
         = paid_registrant_count
     df.loc[free_webinar_id, CSVColumnNames.PAID_WEBINAR_NAMES]\
@@ -82,6 +106,7 @@ for free_webinar_id in free_webinar_ids:
 # convert row indices (which are free webinar IDs) into strings)
 df = df.rename(lambda id: str(id), axis="rows")
 
+# rename the row indices (which are free webinar IDs) to webinar names
 df = df.rename(WebinarsByRegistrantConfig.webinar_ids_to_names, axis="rows")
 
 OUTPUT_FILE_PATH = (
