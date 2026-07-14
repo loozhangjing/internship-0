@@ -5,7 +5,7 @@ import pandas as pd
 from config.GlobalConfig import GlobalConfig
 from config.WebinarListConfig import WebinarListConfig
 
-from config.WebinarsByRegistrantConfig import webinar_ids_to_names
+from config.WebinarsByRegistrantConfig import WebinarsByRegistrantConfig
 
 from functions.get_registrants_by_webinar_ids\
     import get_registrants_by_webinar_ids
@@ -62,7 +62,7 @@ for free_webinar_id in free_webinar_ids:
     )
 
     paid_webinar_ids = [str(id) for id in paid_webinar_ids]
-    paid_webinar_names = [webinar_ids_to_names[id] for id in paid_webinar_ids]
+    paid_webinar_names = [WebinarsByRegistrantConfig.webinar_ids_to_names[id] for id in paid_webinar_ids]
 
     free_registrant_count = free_registrants_df.shape[0]
     paid_registrant_count = paid_registrants_df.shape[0]
@@ -71,5 +71,10 @@ for free_webinar_id in free_webinar_ids:
     df.loc[free_webinar_id, "Number of unique free registrants"] = free_registrant_count
     df.loc[free_webinar_id, "Number of unique paid registrants"] = paid_registrant_count
     df.loc[free_webinar_id, "Paid webinar name(s)"] = "\n".join(paid_webinar_names)
+
+# convert row indices (which are free webinar IDs) into strings)
+df = df.rename(lambda id: str(id), axis="rows")
+
+df = df.rename(WebinarsByRegistrantConfig.webinar_ids_to_names, axis="rows")
 
 GlobalConfig.pretty_print_df(df)
