@@ -15,7 +15,11 @@ class CSVColumnNames:
         "Total number of unique free registrants "
         "[that registered]"
     )
-    PAID_REGISTRANT_COUNT = "Number of unique paid registrants"
+    TOTAL_PAID_REGISTRANT_COUNT = "Total number of unique paid registrants"
+    LOYAL_REGISTRANT_COUNT = (
+        "Number of registrants that joined the paid webinar(s) but did NOT "
+        "register or attend the free webinar"
+    )
     PAID_WEBINAR_NAMES = "Paid webinar name(s)"
 
 class CalculateConversionRatesConfig:
