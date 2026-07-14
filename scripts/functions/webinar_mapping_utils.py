@@ -1,4 +1,5 @@
 import logging
+
 from config.env import WEBINAR_MAPPINGS
 
 logger = logging.getLogger(__name__)
@@ -26,11 +27,17 @@ def get_free_to_paid_webinar_id_mappings():
             for tup in WEBINAR_MAPPINGS
     }
 
-def get_paid_webinar_ids_from_free_id(free_webinar_id):
+def get_paid_webinar_ids_from_free_id(
+    free_webinar_id: int
+) -> list[int]:
     for tup in WEBINAR_MAPPINGS:
         for free_id in tup[1]:
             if free_id == free_webinar_id:
                 return tup[2]
+
+    raise Exception(
+        f"no paid webinar IDs found for free webinar ID {free_webinar_id}"
+    )
 
 def learnabee_webinar_name_exists(learnabee_webinar_name):
     for tup in WEBINAR_MAPPINGS:

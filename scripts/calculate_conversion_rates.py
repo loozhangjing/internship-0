@@ -20,6 +20,40 @@ logger.setLevel(logging.DEBUG)
 
 COLUMN_NAMES = CalculateConversionRatesConfig.CSV_COLUMN_NAMES
 
+def remove_rows_with_duplicate_emails(df: pd.DataFrame):
+    return df.groupby("email").first()
+
+def get_unique_paid_registrants(paid_webinar_ids: list[str]) -> pd.DataFrame:
+    # initialise an empty `DataFrame`
+    paid_registrants_df = pd.DataFrame()
+
+    for paid_webinar_id in paid_webinar_ids:
+        paid_registrants = get_registrants_by_webinar_ids([paid_webinar_id])
+        new_df = pd.DataFrame(paid_registrants)
+
+        # note that many registrants who have joined the paid webinar(s) of the
+        # previous loop iteration(s) will have joined this webinar too, so,
+        # at this point, there will be lots of rows with duplicate emails
+        paid_registrants_df = pd.concat([paid_registrants_df, new_df])
+
+    count_including_duplicates = paid_registrants_df.shape[0]
+
+    paid_registrants_df = remove_rows_with_duplicate_emails(
+        paid_registrants_df
+    )
+
+    count_without_duplicates = paid_registrants_df.shape[0]
+
+    logger.debug(
+        f"for paid webinar(s) {",".join(paid_webinar_ids)}:"
+        "\n"
+        f"{count_including_duplicates} registrants in total, "
+        f"{count_without_duplicates} unique"
+        "\n"
+    )
+
+    return paid_registrants_df
+
 
 free_webinar_ids = WebinarListConfig.get_free_webinar_ids()
 
@@ -30,48 +64,23 @@ for free_webinar_id in free_webinar_ids:
         get_registrants_by_webinar_ids([free_webinar_id])
     )
 
-    attended_free_registrants_df = total_free_registrants_df[
+    attended_free_registrants_df = total_free_registrants_df.loc[
         total_free_registrants_df.attended_live == "Yes"
     ]
 
-    # remove duplicate free registrants
-    total_free_registrants_df = total_free_registrants_df.groupby("email").first()
-    attended_free_registrants_df = (
-        attended_free_registrants_df.groupby("email").first()
+    total_free_registrants_df = remove_rows_with_duplicate_emails(
+        total_free_registrants_df
+    )
+    attended_free_registrants_df = remove_rows_with_duplicate_emails(
+        attended_free_registrants_df
     )
 
+    paid_webinar_ids = [
+        str(id) for id in get_paid_webinar_ids_from_free_id(free_webinar_id)
+    ]
 
-    paid_webinar_ids = get_paid_webinar_ids_from_free_id(free_webinar_id)
+    paid_registrants_df = get_unique_paid_registrants(paid_webinar_ids)
 
-    if paid_webinar_ids is None:
-        raise Exception(
-            f"no paid webinar IDs found for free webinar ID {free_webinar_id}"
-        )
-
-    paid_registrants_df = pd.DataFrame()
-
-    for paid_webinar_id in paid_webinar_ids:
-        paid_registrants = get_registrants_by_webinar_ids([paid_webinar_id])
-        new_df = pd.DataFrame(paid_registrants)
-
-        paid_registrants_df = pd.concat([paid_registrants_df, new_df])
-
-    count_including_duplicates = paid_registrants_df.shape[0]
-
-    # remove duplicate registrants, some due to the previous concatenation
-    paid_registrants_df = paid_registrants_df.groupby("email").first()
-
-    count_without_duplicates = paid_registrants_df.shape[0]
-
-    logger.debug(
-        f"for paid webinars {paid_webinar_ids}:"
-        "\n"
-        f"{count_including_duplicates} registrants in total, "
-        f"{count_without_duplicates} unique"
-        "\n"
-    )
-
-    paid_webinar_ids = [str(id) for id in paid_webinar_ids]
     paid_webinar_names = [
         WebinarsByRegistrantConfig.webinar_ids_to_names[id]
         for id in paid_webinar_ids
